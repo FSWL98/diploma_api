@@ -1,0 +1,14 @@
+heartbeat.monitors:
+- type: http
+  schedule: '@every 10s'
+  urls:
+    - https://${HOST}/api/v1/version
+  check.request:
+    method: GET
+    headers:
+        'Content-Type': 'application/json'
+  check.response:
+       status: 200
+output.logstash:
+  hosts: ["itsociety.su:5044"]
+  index: ${COMPOSE_PROJECT_NAME}_heartbeat_api

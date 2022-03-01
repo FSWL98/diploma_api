@@ -1,0 +1,22 @@
+FROM python:3.9.1
+
+WORKDIR /usr/src/app
+
+RUN apt-get update && apt-get clean
+
+COPY requirements.txt ./requirements.txt
+RUN pip install urllib3
+RUN pip install -r requirements.txt
+
+COPY app/ ./app/
+
+COPY scheduler/ ./scheduler/
+
+RUN chmod 777 ./scheduler/startup.sh && \
+    sed -i 's/\r//' ./scheduler/startup.sh
+
+COPY VERSION ./VERSION
+
+EXPOSE 20000
+
+CMD sh ./scheduler/startup.sh
