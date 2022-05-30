@@ -23,10 +23,3 @@ class Release(EntityBase):
         return cls.dict_item(cls.query.filter_by(release_id=release_id).first())
 
     get_item_by_id = get_release_by_id
-
-    # @classmethod
-    # def get_releases(cls):
-    #     return [release.to_dict() for release in
-    #             cls.query.order_by(cls.release_id).all()]
-    #
-    # get_items = get_releases

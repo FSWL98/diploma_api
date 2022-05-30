@@ -14,6 +14,9 @@ api = SolutionDto.api
 _item_parser = api.parser()
 _item_parser.add_argument('solution_id', type=int, help='Solution unique identifier', location='args', required=True)
 
+_event_parser = api.parser()
+_event_parser.add_argument('event_id', type=int, help='The event identifier.', location='args', required=True)
+
 
 @api.route('')
 @api.doc(security='access-token')
@@ -47,7 +50,7 @@ class SolutionApi(Resource):
         solution = Solution.get_solution_by_id(args.get('solution_id'))
         if solution is None:
             api.abort(HTTPStatus.NOT_FOUND, f'Solution with id {args.get("solution_id")} was not found')
-        solution = get_items_with_relations([solution], Solution, None, ['marks'])
+        solution = get_items_with_relations([solution], Solution, None, ['marks', 'pairing_marks'])[0]
         return solution
 
     @api.doc('update_solution')
@@ -59,3 +62,22 @@ class SolutionApi(Resource):
     @access_token_required()
     def put(self):
         return handle_error(Solution.update(add_last_change_by_id(api.payload)), api)
+
+
+@api.route('/event')
+@api.doc(security='access-token')
+class SolutionEventApi(Resource):
+    @api.doc('get_solutions_by_id')
+    @api.expect(_event_parser, validate=True)
+    @api.response(200, 'Success', SolutionDto.solution_list)
+    @api.response(400, 'Bad request')
+    @api.response(401, 'Unauthorized')
+    @api.response(403, 'Forbidden')
+    @access_token_required()
+    @role_access_required(['admin', 'administrator', 'staff'])
+    def get(self):
+        args = _event_parser.parse_args()
+        solutions = Solution.get_solutions_by_event(args.get('event_id'))
+        count = len(solutions)
+        solutions = get_items_with_relations(solutions, Solution, None, ['marks', 'pairing_marks'])
+        return OrderedDict([('solutions', solutions), ('count', count)])

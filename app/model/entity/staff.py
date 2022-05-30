@@ -44,6 +44,12 @@ class Staff(EntityBase, UserMixin):
     ]
 
     @classmethod
+    def get_staffs(cls):
+        return [staff.to_dict() for staff in cls.query.order_by(cls.id).all()]
+
+    get_items = get_staffs
+
+    @classmethod
     def get_staff_instance_by_id(cls, id):
         return cls.query.filter_by(id=id).first()
 

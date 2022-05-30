@@ -28,7 +28,7 @@ def get_user(phone, email, abort=True):
 @api.route('/user/register')
 class UserRegisterApi(Resource):
     @api.doc('register_user')
-    @api.expect(UserDto.user_create_in, validate=True)
+    @api.expect(UserDto.user_create_in)
     @api.response(201, 'User created', UserDto.user_out)
     @api.response(400, 'Bad request')
     @api.response(401, 'Unauthorized')

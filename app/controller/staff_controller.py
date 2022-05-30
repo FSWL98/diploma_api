@@ -32,35 +32,20 @@ _item_parser = api.parser()
 _item_parser.add_argument('id', type=int, help='The staff identifier.', location='args', required=True)
 
 
-
 @api.route('')
 @api.doc(security='access-token')
 class StaffApi(Resource):
     @api.doc('get_staff')
-    @api.expect(_list_parser)
     @api.response(200, 'Success', StaffDto.staff_list)
     @api.response(400, 'Bad request')
     @api.response(401, 'Unauthorized')
     @api.response(403, 'Forbidden operation')
     @access_token_required()
-    @role_access_required(['administrator', 'assistant', 'doctor'])
+    @role_access_required(['admin', 'administrator'])
     def get(self):
-        args = _list_parser.parse_args()
-        relations = ['labels', 'science_degrees', 'specialities', 'staff_categories', 'clinics', 'partners']
-        if args.get('query'):
-            items, total = Staff.search(args['query'])
-            staff = get_items_related_to_page(args['page_id'], args['page_size'], items)
-            count = len(items)
-        else:
-            if args.get('roles'):
-                _filter = Staff.by_roles_filter(args['roles'])
-            else:
-                _filter = None
-            staff, count = Staff.get_items(args['page_id'], args['page_size'], filter_func=_filter)
-            staff = get_items_with_relations(staff, Staff, None, relations)
-
-        return OrderedDict([('roles', Role.get_roles()),
-                            ('staff', staff), ('count', count)])
+        staff = Staff.get_items()
+        count = len(staff)
+        return OrderedDict([('staff', staff), ('count', count)])
 
     @api.doc('create_staff')
     @api.expect(StaffDto.staff_create_in)

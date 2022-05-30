@@ -111,17 +111,10 @@ class PersonDto:
     api = Namespace('person', description='Person operations')
 
     person = api.model('person', {
-        'phone': NullableString(description='The person phone number'),
-        'chat_id': NullableInteger(description='The person telegram chat identifier'),
-        'tg_username': NullableString(description='The person telegram username'),
         'name': NullableString(description='The person name'),
         'surname': NullableString(description='The person surname'),
         'patronymic': NullableString(description='The person patronymic'),
         'gender': NullableString(description='The person gender'),
-        'avatar': NullableString(description='Person avatar'),
-        'is_confirmed': fields.Boolean(description='Flag if user can log in'),
-        'notification_method': NullableString(
-            description='User preferred message channel. Three are available: telegram, phone and email')
     })
 
 
@@ -129,17 +122,10 @@ class StaffDto:
     api = Namespace('staff', description='Staff operations')
 
     person = api.model('person', {
-        'phone': NullableString(description='The person phone number'),
-        'chat_id': NullableInteger(description='The person telegram chat identifier'),
-        'tg_username': NullableString(description='The person telegram username'),
         'name': NullableString(required=True, description='The person name'),
         'surname': NullableString(required=True, description='The person surname'),
         'patronymic': NullableString(description='The person patronymic'),
-        'gender': NullableString(description='The person gender'),
-        'avatar': NullableString(description='Person avatar'),
-        'is_confirmed': NullableBoolean(description='Flag if user can log in'),
-        'notification_method': NullableString(
-            description='User preferred message channel. Three are available: telegram, phone and email')
+        'gender': NullableString(description='The person gender')
     })
 
     role_out = api.model('role_out', {
@@ -273,52 +259,22 @@ class UserDto:
     api = Namespace('user', description='user operations')
 
     person = api.model('person', {
-        'phone': NullableString(description='The person phone number'),
-        'chat_id': NullableInteger(description='The person telegram chat identifier'),
-        'tg_username': NullableString(description='The person telegram username'),
         'name': NullableString(description='The person name'),
         'surname': NullableString(description='The person surname'),
         'patronymic': NullableString(description='The person patronymic'),
         'gender': NullableString(description='The person gender'),
-        'avatar': NullableString(description='Person avatar'),
-        'is_confirmed': NullableBoolean(description='Flag if user can log in'),
-        'notification_method': NullableString(
-            description='User preferred message channel. Three are available: telegram, phone and email'),
-        'can_receive_tg_notifications': fields.Boolean(description='Tg notification flag'),
-        'can_receive_tg_screening': fields.Boolean(description='Tg screening flag'),
-        'can_receive_tg_news': fields.Boolean(description='Tg news flag')
     })
 
     user_create_in = api.model('user_create_in', {
         'password': fields.String(description='User password'),
         'person': fields.Nested(person, description='User person information'),
         'email': NullableString(description='The user email'),
-        'birthdate': fields.Date(description='User birthdate'),
-        'timezone': fields.Integer(description='User timezone'),
-    })
-
-    user_bot_create_in = api.model('user_bot_create_in', {
-        'name': fields.String(required=True, description='User person name'),
-        'surname': fields.String(required=True, description='User person surname'),
-        'patronymic': fields.String(description='User person patronymic'),
-        'gender': fields.String(required=True, description='User person gander'),
-        'email': fields.String(description='The user email'),
-        'birthdate': fields.Date(description='User birthdate'),
-        'timezone': fields.Integer(description='User timezone'),
     })
 
     user_out = api.model('user_out', {
         'user_id': fields.Integer(required=True, description='User identifier'),
         'person': fields.Nested(person, required=True, description='User person information'),
         'email': fields.String(required=True, description='User email'),
-        'birthdate': fields.Date(required=True, description='User birthdate'),
-        'timezone': fields.Integer(required=True, description='User timezone'),
-        'occupation': fields.String(required=True, description='User occupation'),
-        'notification_method': fields.String(required=True,
-                                             description='User preferred message channel. Three are available: telegram, phone and email'),
-        'alias': fields.String(required=True, description='User alias'),
-        'is_bot_active': fields.Boolean(required=True, description='Whether user blocked the bot'),
-        'flags': fields.String(required=True, description='User flags'),
         'create_date': fields.DateTime(required=True, description='User creation date'),
         'update_date': fields.DateTime(required=True, description='User edit date'),
         'last_change_by_id': fields.Integer(required=True, description='Person identifier who changed the last time'),
@@ -468,6 +424,53 @@ class MarkDto:
     })
 
 
+class PairingMarkDto:
+    api = Namespace('pairing_mark', description='Mark operations with pairing method')
+
+    pairing_mark_create_in = api.model('pairing_mark_create_in', {
+        'first_solution_id': fields.Integer(required=True, description='First marked solution unique identifier'),
+        'second_solution_id': fields.Integer(required=True, description='Second marked solution unique identifier'),
+        'event_id': fields.Integer(required=True, description='Event unique identifier'),
+        'criteria_id': fields.Integer(required=True, description='Marked criteria unique identifier'),
+        'score': fields.Integer(required=True, description='2/1/0 according to how is the first solution marked to second one'),
+        'comment': NullableString(description='Comment on the score')
+    })
+
+    pairing_mark_update_in = api.model('pairing_mark_update_in', {
+        'pairing_mark_id': fields.Integer(required=True, description='Pairing mark unique identifier'),
+        'first_solution_id': fields.Integer(required=True, description='First marked solution unique identifier'),
+        'second_solution_id': fields.Integer(required=True, description='Second marked solution unique identifier'),
+        'criteria_id': fields.Integer(required=True, description='Marked criteria unique identifier'),
+        'score': fields.Integer(required=True, description='Score of the solution in this criteria'),
+        'comment': NullableString(description='Comment on the score')
+    })
+
+    pairing_mark_start_in = api.model('pairing_mark_start_in', {
+        'event_id': fields.Integer(required=True, description='Event unique identifier'),
+        'staff_id': fields.Integer(required=True, description='Staff unique identifier')
+    })
+
+    pairing_mark_out = api.model('pairing_mark_out', {
+        'pairing_mark_id': fields.Integer(required=True, description='Pairing mark unique identifier'),
+        'first_solution_id': fields.Integer(required=True, description='First marked solution unique identifier'),
+        'second_solution_id': fields.Integer(required=True, description='Second marked solution unique identifier'),
+        'event_id': fields.Integer(required=True, description='Event unique identifier'),
+        'criteria_id': fields.Integer(required=True, description='Marked criteria unique identifier'),
+        'staff_id': fields.Integer(required=True, description='Staff unique identifier'),
+        'score': fields.Integer(required=True, description='Score of the solution in this criteria'),
+        'comment': NullableString(description='Comment on the score'),
+        'create_date': fields.DateTime(required=True, description='Event create date'),
+        'update_date': fields.DateTime(required=True, description='Last update date'),
+        'last_change_by_id': fields.Integer(required=True, description='Person identifier who changed the last time')
+    })
+
+    pairing_update_out = api.model('update_out', {
+        'updated_mark': fields.Nested(pairing_mark_out),
+        'automatically_updated_marks': fields.List(fields.Nested(pairing_mark_out),
+                                                   description='List of automatically updated marks')
+    })
+
+
 class SolutionDto:
     api = Namespace('solution', description='Solution operations')
 
@@ -483,6 +486,7 @@ class SolutionDto:
         'description': NullableString(description='Solution description')
     })
 
+
     solution_out = api.model('solution_out', {
         'solution_id': fields.Integer(required=True, description='Solution unique identifier'),
         'user_id': fields.Integer(required=True, description='User unique identifier (whose solution is)'),
@@ -493,4 +497,9 @@ class SolutionDto:
         'create_date': fields.DateTime(required=True, description='Event create date'),
         'update_date': fields.DateTime(required=True, description='Last update date'),
         'last_change_by_id': fields.Integer(required=True, description='Person identifier who changed the last time')
+    })
+
+    solution_list = api.model('solution_list', {
+        'solutions': fields.List(fields.Nested(solution_out)),
+        'count': fields.Integer(required=True, description='Amount of solutions')
     })

@@ -30,8 +30,7 @@ class MarkApi(Resource):
         if criteria is None:
             api.abort(HTTPStatus.BAD_REQUEST, f'Criteria with id {data["criteria_id"]} was not found')
         if data['score'] > criteria['maximum'] or data['score'] < criteria['minimum']:
-            api.abort(HTTPStatus.BAD_REQUEST, 'Not acceptable score')
-        print(data)
+            api.abort(HTTPStatus.BAD_REQUEST, 'Недопустимая оценка')
         data['staff_id'] = staff['id']
         return handle_error(Mark.create(add_last_change_by_id(data)), api)
 
@@ -44,4 +43,10 @@ class MarkApi(Resource):
     @access_token_required()
     @role_access_required(['admin', 'administrator', 'staff'])
     def put(self):
+        data = api.payload
+        criteria = Criteria.get_criteria_by_id(data['criteria_id'])
+        if criteria is None:
+            api.abort(HTTPStatus.BAD_REQUEST, f'Criteria with id {data["criteria_id"]} was not found')
+        if data['score'] > criteria['maximum'] or data['score'] < criteria['minimum']:
+            api.abort(HTTPStatus.BAD_REQUEST, 'Недопустимая оценка')
         return handle_error(Mark.update(add_last_change_by_id(api.payload)), api)

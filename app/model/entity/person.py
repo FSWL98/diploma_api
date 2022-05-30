@@ -97,7 +97,7 @@ class Person(EntityBase):
                 'password': password,
                 'refresh': False
             }
-            access_token = create_access_token(identity=payload)
+            access_token = create_access_token(identity=payload, expires_delta=False)
             if refresh:
                 payload['refresh'] = True
                 refresh_token = create_refresh_token(identity=payload)

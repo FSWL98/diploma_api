@@ -75,7 +75,7 @@ class Mark(EntityBase):
         if mark_dict:
             cls._delete(mark_dict)
             return mark_dict
-        return None, f'Solution with id {mark_id} was not found'
+        return None, f'Mark with id {mark_id} was not found'
 
     @classmethod
     def delete_by_solution(cls, solution_id):

@@ -22,16 +22,19 @@ _not_required_item_parser.add_argument('event_id', type=int, help='The event ide
 @api.route('/')
 @api.doc(security='access-token')
 class EventListApi(Resource):
-    @api.doc('list_event')
-    @api.response(200, 'Success', EventDto.event_list)
+    @api.doc('event_list')
+    @api.expect(_item_parser, validate=True)
+    @api.response(200, 'Success', EventDto.event_out)
     @api.response(400, 'Bad request')
     @api.response(401, 'Unauthorized')
-    @api.response(403, 'Forbidden operation')
+    @api.response(403, 'Forbidden')
     @access_token_required()
     def get(self):
-        all_events = Event.get_events()
-        count = len(all_events)
-        return OrderedDict([('events', all_events), ('count', count)])
+        args = _item_parser.parse_args()
+        event = Event.get_event_by_id(args.get('event_id'))
+        if event is None:
+            api.abort(HTTPStatus.NOT_FOUND, f'Event with id {args.get("event_id")} is not found')
+        return event
 
     @api.doc('create_event')
     @api.expect(EventDto.event_in, validate=True)
@@ -66,6 +69,21 @@ class EventListApi(Resource):
     def delete(self):
         args = _item_parser.parse_args()
         return handle_error(Event.delete(args['event_id']), api, HTTPStatus.NOT_FOUND)
+
+
+@api.route('/list')
+@api.doc(security='access-token')
+class EventListApi(Resource):
+    @api.doc('list_event')
+    @api.response(200, 'Success', EventDto.event_list)
+    @api.response(400, 'Bad request')
+    @api.response(401, 'Unauthorized')
+    @api.response(403, 'Forbidden operation')
+    @access_token_required()
+    def get(self):
+        all_events = Event.get_events()
+        count = len(all_events)
+        return OrderedDict([('events', all_events), ('count', count)])
 
 
 @api.route('/register')

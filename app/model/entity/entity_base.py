@@ -32,7 +32,7 @@ class EntityBase(Base):
 
     @classmethod
     def get_items(cls, page_id=0, page_size=-1, filter_func=None, base_query=None):
-        MAX_PAGE_SIZE = current_app.config['MAX_PAGE_SIZE']
+        MAX_PAGE_SIZE = 10
         query = base_query if base_query else cls.query.order_by(inspect(cls).primary_key[0].name)
         if filter_func:
             query = filter_func(query)

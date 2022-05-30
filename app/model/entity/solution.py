@@ -1,7 +1,9 @@
 from sqlalchemy import Column, DateTime, Integer, String, ForeignKey
 
 from app.model.db import seq
+from ..entity.criteria import Criteria
 from ..entity.mark import Mark
+from .pairing_mark import PairingMark
 from .entity_base import EntityBase
 from ..relation.user_event import UserEvent
 
@@ -28,7 +30,8 @@ class Solution(EntityBase):
     update_simple_fields = ['url', 'description', 'last_change_by_id']
 
     get_relations_map = {
-        'marks': lambda solution_id: Mark.get_marks_by_solution(solution_id)
+        'marks': lambda solution_id: Mark.get_marks_by_solution(solution_id),
+        'pairing_marks': lambda solution_id: PairingMark.get_marks_by_solution(solution_id)
     }
 
     delete_relations_funcs = [
@@ -51,13 +54,31 @@ class Solution(EntityBase):
 
     @classmethod
     def get_solutions_by_event(cls, event_id):
-        user_event_ids = UserEvent.get_relation_ids_by_event(event_id)
-        return [cls.get_solution_by_user_event(user_event_id) for user_event_id in user_event_ids]
+        return [cls.dict_item(item) for item in cls.query.filter_by(event_id=event_id)]
 
     @classmethod
     def get_solutions_by_user(cls, user_id):
         user_event_ids = UserEvent.get_relation_ids_by_user(user_id)
         return [cls.get_solution_by_user_event(user_event_id) for user_event_id in user_event_ids]
+
+    @classmethod
+    def create_all_pairs(cls, event_id, staff_id):
+        solutions = cls.get_solutions_by_event(event_id)
+        criterias = Criteria.get_criterias()
+        for criteria in criterias:
+            for i in range(len(solutions)):
+                for j in range(len(solutions) - i - 1):
+                    data = {
+                        'criteria_id': criteria['criteria_id'],
+                        'staff_id': staff_id,
+                        'event_id': event_id,
+                        'first_solution_id': solutions[i]['solution_id'],
+                        'second_solution_id': solutions[j + i + 1]['solution_id'],
+                        'score': -1,
+                        'comment': '',
+                        'last_change_by_id': staff_id
+                    }
+                    PairingMark.create(data)
 
     @classmethod
     def create(cls, data):

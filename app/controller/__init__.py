@@ -11,6 +11,7 @@ from . import criteria_controller
 from . import default_controller
 from . import event_controller
 from . import mark_controller
+from . import pairing_mark_controller
 from . import solution_controller
 from . import staff_controller
 from . import user_controller
@@ -56,14 +57,14 @@ def init_app(app):
                     doc=app.config['DOC_URL'], authorizations=AUTHORIZATIONS,
                     format_checker=FormatChecker(formats=['date-time', 'date', 'time-hm']))
 
-    api.add_namespace(auth_controller.api)
     api.add_namespace(default_controller.api, path='/')
-
+    api.add_namespace(auth_controller.api)
     api.add_namespace(criteria_controller.api, path='/criteria')
-    api.add_namespace(user_controller.api, path='/user')
-    api.add_namespace(solution_controller.api, path='/solution')
-    api.add_namespace(mark_controller.api, path='/mark')
-    api.add_namespace(staff_controller.api, path='/staff')
     api.add_namespace(event_controller.api, path='/event')
+    api.add_namespace(mark_controller.api, path='/mark')
+    api.add_namespace(pairing_mark_controller.api, path='/pairing_mark')
+    api.add_namespace(solution_controller.api, path='/solution')
+    api.add_namespace(staff_controller.api, path='/staff')
+    api.add_namespace(user_controller.api, path='/user')
 
     app.register_blueprint(blueprint)

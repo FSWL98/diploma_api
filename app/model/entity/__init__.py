@@ -4,6 +4,7 @@ from .criteria import Criteria
 from .event import Event
 from .mark import Mark
 from .person import Person
+from .pairing_mark import PairingMark
 from .release import Release
 from .role import Role
 from .role_staff import role_staff_table
